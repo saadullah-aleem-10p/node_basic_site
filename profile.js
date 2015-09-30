@@ -24,13 +24,13 @@ function Profile(username) {
         }
 
         //Read the data
-        response.on('data', function (chunk) {
+        response.on('data', function(chunk) {
             body += chunk;
             profileEmitter.emit("data", chunk);
         });
 
-        response.on('end', function () {
-            if(response.statusCode === 200) {
+        response.on('end', function() {
+            if (response.statusCode === 200) {
                 try {
                     //Parse the data
                     var profile = JSON.parse(body);
@@ -39,12 +39,12 @@ function Profile(username) {
                     profileEmitter.emit("error", error);
                 }
             }
-        }).on("error", function(error){
+        }).on("error", function(error) {
             profileEmitter.emit("error", error);
         });
     });
 }
 
-util.inherits( Profile, EventEmitter );
+util.inherits(Profile, EventEmitter);
 
 module.exports = Profile;
