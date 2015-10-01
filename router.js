@@ -1,18 +1,31 @@
 var Profile = require("./profile.js");
 var  renderer = require("./renderer.js");
+var queryString = require("querystring");
+
+var commonHeaders = {'Content-Type' : 'text/html'};
 
 //Handle the searching
 function home(request, response) {
-  //if url == "/" && GET
+    //if url == "/" && GET
     if (request.url === "/") {
     //show search
-        response.writeHead(200, {'Content-Type' : 'text/plain'});
-        renderer.view("header", {}, response);
-        renderer.view("search", {}, response);
-        renderer.view("footer", {}, response);
+        if (request.method.toLowerCase() === "get") {
+            response.writeHead(200, commonHeaders);
+            renderer.view("header", {}, response);
+            renderer.view("search", {}, response);
+            renderer.view("footer", {}, response);
+        } else {
+            //if url == "/" && POST
+            request.on("data", function(postBody) {
+                console.log(postBody.toString());
+                var query = queryString.parse(postBody.toString());
+                response.writeHead(303, {"Location" : "/" + query.username});
+                response.end();
+            });
+            //show username
+        }
     }
-  //if url == "/" && POST
-    //show username
+
 }
 
 
@@ -21,7 +34,7 @@ function user(request, response) {
     //if url == "/..."
     var userName = request.url.replace("/", "");
     if (userName.length > 0) {
-        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.writeHead(200, commonHeaders);
         renderer.view("header", {}, response);
 
         //get JSON from treehouse
@@ -35,7 +48,8 @@ function user(request, response) {
                 avatarUrl: ProfileJSON.gravatar_url,
                 userName: ProfileJSON.profile_name,
                 badges: ProfileJSON.badges.length,
-                javascriptPoints: ProfileJSON.points.JavaScript
+                javascriptPoints: ProfileJSON.points.JavaScript,
+                pythonPoints: ProfileJSON.points.Python
             };
             //simple response
             renderer.view("profile", values, response);
